@@ -1123,6 +1123,33 @@ bool llvm::replaceDbgDeclareForAlloca(AllocaInst *AI, Value *NewAllocaAddress,
   return true;
 }
 
+bool llvm::replaceDbgValueForAlloca(AllocaInst *AI, Value *NewAllocaAddress,
+                                    DIBuilder &Builder) {
+  MDNode *DebugNode = MDNode::getIfExists(AI->getContext(), AI);
+  if (!DebugNode)
+    return false;
+
+  SmallVector<DbgValueInst*, 16> DVIs;
+  for (User *U : DebugNode->users()) {
+    if (DbgValueInst *DVI = dyn_cast<DbgValueInst>(U))
+      DVIs.push_back(DVI);
+  }
+
+  for (DbgValueInst *DVI: DVIs) {
+    assert(DVI->getValue() == AI);
+
+    uint64_t DIOffset = DVI->getOffset();
+    DIVariable DIVar(DVI->getVariable());
+
+    // Insert llvm.dbg.value right next to the original llvm.dbg.value and
+    // remove the original one.
+    Builder.insertDbgValueIntrinsic(NewAllocaAddress, DIOffset, DIVar, DVI);
+    DVI->eraseFromParent();
+  }
+
+  return true;
+}
+
 /// changeToUnreachable - Insert an unreachable instruction before the specified
 /// instruction, making it and the rest of the code in the block dead.
 static void changeToUnreachable(Instruction *I, bool UseLLVMTrap) {

@@ -1848,6 +1848,48 @@ bool X86TargetLowering::getStackCookieLocation(unsigned &AddressSpace,
   return true;
 }
 
+bool X86TargetLowering::getUnsafeStackPtrLocation(unsigned &AddressSpace,
+                                                  unsigned &Offset) const {
+  if (Subtarget->isTargetDarwin() &&
+      getTargetMachine().getCodeModel() != CodeModel::Kernel) {
+    /* On Darwin, we store the unsafe stack pointer in one of the
+     * thread-specific data slots that are reserved for system libraries.
+     * Such data slots are directly accessible through the %gs segment, and
+     * are described in detail in pthreads/pthread_machdep.h in Darwin Libc.
+     * As of Libc-825, slots 0 - 255 are reserved, but only slots 0 - 119
+     * are actually used. We use slot 192, which is accessible as
+     * %gs:(192 * sizeof(void*))
+     */
+    AddressSpace = 256;
+    Offset = 192 * (Subtarget->getDataLayout()->getPointerSize());
+    return true;
+  }
+
+  /* TODO: To make accessing the unsafe stack pointer faster, we plan to
+   * eventually store it directly in the thread control block data structure on
+   * platforms where this structure is pointed to by %fs or %gs. This is exactly
+   * the same mechanism as currently being used by the traditional stack
+   * protector pass to store the stack guard (see getStackCookieLocation()
+   * function above). Doing so requires changing the tcbhead_t struct in glibc
+   * on Linux and tcb struct in libc on FreeBSD.
+   */
+  if (Subtarget->isTargetFreeBSD() &&
+      getTargetMachine().getCodeModel() != CodeModel::Kernel) {
+    if (Subtarget->is32Bit())
+      AddressSpace = 256; // X86::GS;
+    else if (Subtarget->is64Bit())
+      AddressSpace = 257; // X86::FS;
+    else
+      return false;
+    Offset = 3 * (Subtarget->getDataLayout()->getPointerSize());
+    return true;
+  }
+
+  // By default, the unsafe stack pointer will be stored in a thread-local
+  // variable with a predefined name.
+  return false;
+}
+
 bool X86TargetLowering::isNoopAddrSpaceCast(unsigned SrcAS,
                                             unsigned DestAS) const {
   assert(SrcAS != DestAS && "Expected different address spaces!");

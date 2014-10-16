@@ -9346,3 +9346,57 @@ Stack Map Intrinsics
 LLVM provides experimental intrinsics to support runtime patching
 mechanisms commonly desired in dynamic language JITs. These intrinsics
 are described in :doc:`StackMaps`.
+
+SafeStack Intrinsics
+--------------------
+
+'``llvm.safestack_get_usp``' Intrinsic
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Syntax:
+"""""""
+
+::
+
+      declare i8* @llvm.safestack_get_usp()
+
+Overview:
+"""""""""
+
+The ``llvm.safestack_get_usp()`` intrinsic returns the pointer to the unsafe stack.
+
+Arguments:
+""""""""""
+
+None.
+
+Semantics:
+""""""""""
+
+The intrinsic helps to get the unsafe stack pointer.
+
+'``llvm.safestack_get_usp``' Intrinsic
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Syntax:
+"""""""
+
+::
+
+      declare void @llvm.safestack_set_usp(i8*)
+
+Overview:
+"""""""""
+
+The ``llvm.safestack_set_usp(i8*)`` intrinsic sets the unsafe stack pointer.
+
+Arguments:
+""""""""""
+
+The new unsafe stack pointer.
+
+Semantics:
+""""""""""
+
+The intrinsic helps to set the unsafe stack pointer.
+

@@ -117,7 +117,7 @@ public:
 
   void ChangeSection(const MCSection *Section,
                      const MCExpr *Subsection) override;
-
+  void EmitSafeStackNote() override;
   void EmitLOHDirective(MCLOHType Kind, const MCLOHArgs &Args) override;
   void EmitLabel(MCSymbol *Symbol) override;
 
@@ -376,6 +376,11 @@ void MCAsmStreamer::EmitVersionMin(MCVersionMinType Kind, unsigned Major,
   OS << " " << Major << ", " << Minor;
   if (Update)
     OS << ", " << Update;
+  EmitEOL();
+}
+
+void MCAsmStreamer::EmitSafeStackNote() {
+  OS << "\t.section\t\".note.SafeStack\",\"\",@note";
   EmitEOL();
 }
 

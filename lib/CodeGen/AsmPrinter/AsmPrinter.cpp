@@ -872,6 +872,10 @@ void AsmPrinter::EmitFunctionBody() {
 static const MCExpr *lowerConstant(const Constant *CV, AsmPrinter &AP);
 
 bool AsmPrinter::doFinalization(Module &M) {
+  // Emit safe stack note
+  if (M.getModuleFlag("SafeStack"))
+    OutStreamer.EmitSafeStackNote();
+
   // Emit global variables.
   for (const auto &G : M.globals())
     EmitGlobalVariable(&G);

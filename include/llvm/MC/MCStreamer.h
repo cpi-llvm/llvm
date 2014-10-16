@@ -393,6 +393,8 @@ public:
   // add the section we're emitting it to later.
   virtual void EmitLabel(MCSymbol *Symbol);
 
+  virtual void EmitSafeStackNote() {}
+
   virtual void EmitEHSymAttributes(const MCSymbol *Symbol, MCSymbol *EHSymbol);
 
   /// EmitAssemblerFlag - Note in the output the specified @p Flag.

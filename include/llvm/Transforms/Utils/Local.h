@@ -270,6 +270,11 @@ DbgDeclareInst *FindAllocaDbgDeclare(Value *V);
 bool replaceDbgDeclareForAlloca(AllocaInst *AI, Value *NewAllocaAddress,
                                 DIBuilder &Builder);
 
+/// replaceDbgValueForAlloca - Replaces llvm.dbg.value that use AI when
+/// alloca is replaced with a new value.
+bool replaceDbgValueForAlloca(AllocaInst *AI, Value *NewAllocaAddress,
+                              DIBuilder &Builder);
+
 /// \brief Remove all blocks that can not be reached from the function's entry.
 ///
 /// Returns true if any basic block was removed.

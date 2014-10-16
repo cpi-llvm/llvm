@@ -53,6 +53,21 @@ void MCELFStreamer::InitSections() {
   SwitchSection(getContext().getObjectFileInfo()->getTextSection());
 }
 
+void MCELFStreamer::EmitSafeStackNote() {
+  static const char NoteName[] = ".note.SafeStack";
+  static const char NoteNamespace[] = "SafeStack";
+  const MCSection *Note = getContext().getELFSection(
+              NoteName, ELF::SHT_NOTE, 0, SectionKind::getMetadata());
+  PushSection();
+  SwitchSection(Note);
+  EmitIntValue(sizeof (NoteNamespace), 4); // namesz
+  EmitIntValue(0, 4);                      // descsz
+  EmitIntValue(0, 4);                      // type
+  EmitBytes(StringRef(NoteNamespace, sizeof (NoteNamespace))); // includes '\0'
+  EmitValueToAlignment(4, 0, 1, 0);
+  PopSection();
+}
+
 void MCELFStreamer::EmitLabel(MCSymbol *Symbol) {
   assert(Symbol->isUndefined() && "Cannot define a symbol twice!");
 
@@ -549,6 +564,7 @@ MCStreamer *llvm::createELFStreamer(MCContext &Context, MCAsmBackend &MAB,
     S->getAssembler().setRelaxAll(true);
   if (NoExecStack)
     S->getAssembler().setNoExecStack(true);
+
   return S;
 }
 
