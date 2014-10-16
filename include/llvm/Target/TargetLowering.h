@@ -913,6 +913,14 @@ public:
     return false;
   }
 
+  /// Return true if the target stores unsafe stack pointer at a fixed offset
+  /// in some non-standard address space, and populates the address space and
+  /// offset as appropriate.
+  virtual bool getUnsafeStackPtrLocation(unsigned &/*AddressSpace*/,
+                                         unsigned &/*Offset*/) const {
+    return false;
+  }
+
   /// Returns the maximal possible offset which can be used for loads / stores
   /// from the global.
   virtual unsigned getMaximalGlobalOffset() const {

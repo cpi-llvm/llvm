@@ -1943,6 +1943,33 @@ bool X86TargetLowering::getStackCookieLocation(unsigned &AddressSpace,
   return true;
 }
 
+bool X86TargetLowering::getUnsafeStackPtrLocation(unsigned &AddressSpace,
+                                                  unsigned &Offset) const {
+  if (Subtarget->isTargetLinux()) {
+    if (Subtarget->is64Bit()) {
+      // %fs:0x280, unless we're using a Kernel code model
+      if (getTargetMachine().getCodeModel() != CodeModel::Kernel) {
+        Offset = 0x280;
+        AddressSpace = 257;
+        return true;
+      }
+    } else {
+      // %gs:0x280, unless we're using a Kernel code model
+      if (getTargetMachine().getCodeModel() != CodeModel::Kernel) {
+        Offset = 0x280;
+        AddressSpace = 256;
+        return true;
+      }
+    }
+  } else if (Subtarget->isTargetDarwin()) {
+    // %gs:(192*sizeof(void*))
+    AddressSpace = 256;
+    Offset = 192 * (Subtarget->getDataLayout()->getPointerSize());
+    return true;
+  }
+  return false;
+}
+
 bool X86TargetLowering::isNoopAddrSpaceCast(unsigned SrcAS,
                                             unsigned DestAS) const {
   assert(SrcAS != DestAS && "Expected different address spaces!");

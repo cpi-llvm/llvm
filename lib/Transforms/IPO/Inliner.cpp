@@ -93,7 +93,8 @@ static void AdjustCallerSSPLevel(Function *Caller, Function *Callee) {
   // clutter to the IR.
   AttrBuilder B;
   B.addAttribute(Attribute::StackProtect)
-    .addAttribute(Attribute::StackProtectStrong);
+    .addAttribute(Attribute::StackProtectStrong)
+    .addAttribute(Attribute::StackProtectReq);
   AttributeSet OldSSPAttr = AttributeSet::get(Caller->getContext(),
                                               AttributeSet::FunctionIndex,
                                               B);
@@ -101,17 +102,27 @@ static void AdjustCallerSSPLevel(Function *Caller, Function *Callee) {
                CalleeAttr = Callee->getAttributes();
 
   if (CalleeAttr.hasAttribute(AttributeSet::FunctionIndex,
-                              Attribute::StackProtectReq)) {
+                              Attribute::SafeStack)) {
+    Caller->removeAttributes(AttributeSet::FunctionIndex, OldSSPAttr);
+    Caller->addFnAttr(Attribute::SafeStack);
+  } else if (CalleeAttr.hasAttribute(AttributeSet::FunctionIndex,
+                                     Attribute::StackProtectReq) &&
+             !CallerAttr.hasAttribute(AttributeSet::FunctionIndex,
+                                      Attribute::SafeStack)) {
     Caller->removeAttributes(AttributeSet::FunctionIndex, OldSSPAttr);
     Caller->addFnAttr(Attribute::StackProtectReq);
   } else if (CalleeAttr.hasAttribute(AttributeSet::FunctionIndex,
                                      Attribute::StackProtectStrong) &&
+             !CallerAttr.hasAttribute(AttributeSet::FunctionIndex,
+                                      Attribute::SafeStack) &&
              !CallerAttr.hasAttribute(AttributeSet::FunctionIndex,
                                       Attribute::StackProtectReq)) {
     Caller->removeAttributes(AttributeSet::FunctionIndex, OldSSPAttr);
     Caller->addFnAttr(Attribute::StackProtectStrong);
   } else if (CalleeAttr.hasAttribute(AttributeSet::FunctionIndex,
                                      Attribute::StackProtect) &&
+           !CallerAttr.hasAttribute(AttributeSet::FunctionIndex,
+                                    Attribute::SafeStack) &&
            !CallerAttr.hasAttribute(AttributeSet::FunctionIndex,
                                     Attribute::StackProtectReq) &&
            !CallerAttr.hasAttribute(AttributeSet::FunctionIndex,
