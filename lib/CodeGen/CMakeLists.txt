@@ -89,6 +89,7 @@ add_llvm_library(LLVMCodeGen
   RegisterCoalescer.cpp
   RegisterPressure.cpp
   RegisterScavenging.cpp
+  SafeStack.cpp
   ScheduleDAG.cpp
   ScheduleDAGInstrs.cpp
   ScheduleDAGPrinter.cpp

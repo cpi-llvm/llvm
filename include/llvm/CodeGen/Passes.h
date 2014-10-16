@@ -557,6 +557,10 @@ namespace llvm {
   ///
   FunctionPass *createStackProtectorPass(const TargetMachine *TM);
 
+  /// createSafeStackPass - This pass split the stack into the safe stack and
+  /// the unsafe stack to protect against stack-based overflow vulnerabilities.
+  Pass *createSafeStackPass(const TargetMachine *tli);
+
   /// createMachineVerifierPass - This pass verifies cenerated machine code
   /// instructions for correctness.
   ///
