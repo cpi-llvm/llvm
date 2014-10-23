@@ -456,6 +456,7 @@ bool SafeStack::runOnFunction(Function &F) {
 
       // Replace alloc with the new location
       replaceDbgDeclareForAlloca(AI, NewAI, DIB);
+      replaceDbgValueForAlloca(AI, NewAI, DIB);
       AI->replaceAllUsesWith(NewAI);
       AI->eraseFromParent();
     }
@@ -548,6 +549,7 @@ bool SafeStack::runOnFunction(Function &F) {
       NewAI->takeName(AI);
 
     replaceDbgDeclareForAlloca(AI, NewAI, DIB);
+    replaceDbgValueForAlloca(AI, NewAI, DIB);
     AI->replaceAllUsesWith(NewAI);
     AI->eraseFromParent();
   }

@@ -1132,6 +1132,53 @@ bool llvm::replaceDbgDeclareForAlloca(AllocaInst *AI, Value *NewAllocaAddress,
   return true;
 }
 
+bool llvm::replaceDbgValueForAlloca(AllocaInst *AI, Value *NewAllocaAddress,
+                                    DIBuilder &Builder) {
+  MDNode *DebugNode = MDNode::getIfExists(AI->getContext(), AI);
+  if (!DebugNode)
+    return false;
+
+  SmallVector<DbgValueInst*, 16> DVIs;
+  for (User *U : DebugNode->users()) {
+    if (DbgValueInst *DVI = dyn_cast<DbgValueInst>(U))
+      DVIs.push_back(DVI);
+  }
+
+  for (DbgValueInst *DVI: DVIs) {
+    assert(DVI->getValue() == AI);
+
+    uint64_t DIOffset = DVI->getOffset();
+    DIVariable DIVar(DVI->getVariable());
+    DIExpression DIExpr(DVI->getExpression());
+
+    // FIXME: it seems that DW_OP_deref is ignored in this context?
+
+    // Create a copy of the original DIDescriptor for user variable, appending
+    // "deref" operation to a list of address elements, as new llvm.dbg.value
+    // will take a value storing address of the memory for variable, not
+    // alloca itself.
+    SmallVector<int64_t, 4> NewDIExpr;
+    if (DIExpr) {
+      for (unsigned i = 0, n = DIExpr.getNumElements(); i < n; ++i) {
+        NewDIExpr.push_back(DIExpr.getElement(i));
+      }
+    }
+
+    // This forces DwarfDebug::emitDebugLocValue to use DW_OP_bref mode
+    // and not treat the location as being in-register
+    NewDIExpr.push_back(dwarf::DW_OP_plus);
+    NewDIExpr.push_back(0);
+
+    // Insert llvm.dbg.value right next to the original llvm.dbg.value and
+    // remove the original one.
+    Builder.insertDbgValueIntrinsic(NewAllocaAddress, DIOffset, DIVar,
+                                    Builder.createExpression(NewDIExpr), DVI);
+    DVI->eraseFromParent();
+  }
+
+  return true;
+}
+
 /// changeToUnreachable - Insert an unreachable instruction before the specified
 /// instruction, making it and the rest of the code in the block dead.
 static void changeToUnreachable(Instruction *I, bool UseLLVMTrap) {
