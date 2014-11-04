@@ -1,5 +1,6 @@
 ; RUN: llc -mtriple=i386-pc-linux-gnu < %s -o - | FileCheck --check-prefix=LINUX-I386 %s
 ; RUN: llc -mtriple=x86_64-pc-linux-gnu < %s -o - | FileCheck --check-prefix=LINUX-X64 %s
+; RUN: llc -mtriple=x86_64-apple-darwin < %s -o - >/tmp/x
 ; RUN: llc -mtriple=x86_64-apple-darwin < %s -o - | FileCheck --check-prefix=DARWIN-X64 %s
 
 %struct.foo = type { [16 x i8] }
@@ -27,7 +28,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test1a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test1a:
@@ -56,11 +57,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test1b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test1b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %buf = alloca [16 x i8], align 16
@@ -83,7 +84,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test2a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test2a:
@@ -114,11 +115,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test2b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test2b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %b = alloca %struct.foo, align 1
@@ -143,7 +144,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test3a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test3a:
@@ -172,11 +173,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test3b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test3b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %buf = alloca [4 x i8], align 1
@@ -199,7 +200,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test4a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test4a:
@@ -230,11 +231,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test4b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test4b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %b = alloca %struct.foo.0, align 1
@@ -259,7 +260,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test5a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test5a:
@@ -282,7 +283,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test5b:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test5b:
@@ -305,7 +306,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test6a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test6a:
@@ -334,11 +335,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test6b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test6b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %retval = alloca i32, align 4
   %a = alloca i32, align 4
@@ -361,7 +362,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test7a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test7a:
@@ -383,7 +384,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test7b:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test7b:
@@ -405,7 +406,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test8a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test8a:
@@ -428,11 +429,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test8b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test8b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %b = alloca i32, align 4
   call void @funcall(i32* %b) nounwind
@@ -449,7 +450,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test9a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test9a:
@@ -476,11 +477,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test9b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test9b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %x = alloca double, align 8
   %call = call double @testi_aux() nounwind
@@ -501,7 +502,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test10a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test10a:
@@ -543,11 +544,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test10b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test10b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %x = alloca double, align 8
   %call = call double @testi_aux() nounwind
@@ -583,7 +584,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test11a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test11a:
@@ -610,11 +611,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test11b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test11b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.pair, align 4
   %b = alloca i32*, align 8
@@ -635,7 +636,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test12a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test12a:
@@ -661,11 +662,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test12b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test12b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.pair, align 4
   %b = alloca i32*, align 8
@@ -685,7 +686,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test13a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test13a:
@@ -709,11 +710,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test13b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test13b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.pair, align 4
   %y = getelementptr inbounds %struct.pair* %c, i64 0, i32 1
@@ -731,7 +732,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test14a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test14a:
@@ -755,11 +756,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test14b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test14b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   %add.ptr5 = getelementptr inbounds i32* %a, i64 -12
@@ -778,7 +779,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test15a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test15a:
@@ -807,11 +808,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test15b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test15b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   %b = alloca float*, align 8
@@ -834,7 +835,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test16a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test16a:
@@ -860,11 +861,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test16b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test16b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   store i32 0, i32* %a, align 4
@@ -883,7 +884,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test17a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test17a:
@@ -908,11 +909,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test17b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test17b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.vec, align 16
   %y = getelementptr inbounds %struct.vec* %c, i64 0, i32 0
@@ -931,7 +932,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test18a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test18a:
@@ -965,11 +966,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test18b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test18b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   %exn.slot = alloca i8*
@@ -998,7 +999,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test19a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test19a:
@@ -1035,11 +1036,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test19b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test19b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.pair, align 4
   %exn.slot = alloca i8*
@@ -1069,7 +1070,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test20a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test20a:
@@ -1097,11 +1098,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test20b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test20b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32*, align 8
   %b = alloca i32**, align 8
@@ -1123,7 +1124,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test21a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test21a:
@@ -1152,11 +1153,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test21b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test21b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32*, align 8
   %b = alloca float**, align 8
@@ -1179,7 +1180,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test22a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test22a:
@@ -1202,7 +1203,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test22b:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test22b:
@@ -1225,7 +1226,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test23a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test23a:
@@ -1252,7 +1253,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test23b:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test23b:
@@ -1279,7 +1280,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test24a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test24a:
@@ -1308,11 +1309,11 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test24b:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test24b:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %n.addr = alloca i32, align 4
   %a = alloca i32*, align 8
@@ -1335,7 +1336,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test25a:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test25a:
@@ -1357,7 +1358,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test25b:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test25b:
@@ -1381,7 +1382,7 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test26:
-; LINUX-X64-NOT: movq	%fs:640
+; LINUX-X64-NOT: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test26:
@@ -1410,11 +1411,11 @@ bb:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test27:
-; LINUX-X64: movq	%fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test27:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
   %tmp = alloca %struct.small*, align 8
   %tmp1 = call i32 (...)* @dummy(%struct.small** %tmp) nounwind
@@ -1463,14 +1464,14 @@ entry:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test28:
-; LINUX-X64: movq	%fs:640
-; LINUX-X64: movq	{{.*}}, %fs:640
-; LINUX-X64: movq	{{.*}}, %fs:640
+; LINUX-X64: movq	__llvm__unsafe_stack_ptr
 
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test28:
-; DARWIN-X64: movq	___llvm__unsafe_stack_ptr
+; DARWIN-X64: movq	%gs:1536
+; DARWIN-X64: movq	{{.*}}, %gs:1536
+; DARWIN-X64: movq	{{.*}}, %gs:1536
 ; DARWIN-X64: .cfi_endproc
   %retval = alloca i32, align 4
   %x = alloca i32, align 4
