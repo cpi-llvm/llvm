@@ -172,6 +172,11 @@ class SafeStack : public ModulePass {
   /// Thread-local variable that stores the unsafe stack pointer
   Value *UnsafeStackPtr;
 
+  Type *StackPtrTy;
+  Type *IntPtrTy;
+  Type *Int32Ty;
+  Type *Int8Ty;
+
   bool haveFunctionsWithSafeStack(Module &M) {
     for (Module::iterator It = M.begin(), Ie = M.end(); It != Ie; ++It) {
       if (It->hasFnAttribute(Attribute::SafeStack))
@@ -214,6 +219,11 @@ public:
     TLI = TM->getSubtargetImpl()->getTargetLowering();
     DL = TLI->getDataLayout();
 
+    StackPtrTy = Type::getInt8PtrTy(M.getContext());
+    IntPtrTy = DL->getIntPtrType(M.getContext());
+    Int32Ty = Type::getInt32Ty(M.getContext());
+    Int8Ty = Type::getInt8Ty(M.getContext());
+
     // Add module-level code (e.g., runtime support function prototypes)
     doPassInitialization(M);
 
@@ -222,24 +232,17 @@ public:
       Function &F = *It;
       DEBUG(dbgs() << "[SafeStack] Function: " << F.getName() << "\n");
 
-      if (F.isDeclaration()) {
-        DEBUG(dbgs() << "[SafeStack]     function definition"
-                        " is not available\n");
-        continue;
-      }
-
-      if (F.getName().startswith("llvm.") ||
-          F.getName().startswith("__llvm__")) {
-        DEBUG(dbgs() << "[SafeStack]     skipping an intrinsic function\n");
-        continue;
-      }
-
       if (!F.hasFnAttribute(Attribute::SafeStack)) {
         DEBUG(dbgs() << "[SafeStack]     safestack is not requested"
                         " for this function\n");
         continue;
       }
 
+      if (F.isDeclaration()) {
+        DEBUG(dbgs() << "[SafeStack]     function definition"
+                        " is not available\n");
+        continue;
+      }
 
       {
         // Make sure the regular stack protector won't run on this function
@@ -267,7 +270,6 @@ public:
 }; // class SafeStack
 
 bool SafeStack::doPassInitialization(Module &M) {
-  Type *Int8Ty = Type::getInt8Ty(M.getContext());
   unsigned AddressSpace, Offset;
   bool Changed = false;
 
@@ -275,23 +277,24 @@ bool SafeStack::doPassInitialization(Module &M) {
   if (TLI->getUnsafeStackPtrLocation(AddressSpace, Offset)) {
     // The unsafe stack pointer is stored at a fixed location
     // (usually in the thread control block)
-    Constant *OffsetVal =
-      ConstantInt::get(Type::getInt32Ty(M.getContext()), Offset);
-
+    Constant *OffsetVal = ConstantInt::get(Int32Ty, Offset);
     UnsafeStackPtr = ConstantExpr::getIntToPtr(OffsetVal,
-                        PointerType::get(Int8Ty->getPointerTo(), AddressSpace));
+                        Int8Ty->getPointerTo()->getPointerTo(AddressSpace));
   } else {
     // The unsafe stack pointer is stored in a global variable with a magic name
+    // FIXME: share this constant between LLVM and compiler-rt
     // FIXME: make the name start with "llvm."
+    static const char* unsafe_stack_ptr_var = "__llvm__unsafe_stack_ptr";
+
     UnsafeStackPtr = dyn_cast_or_null<GlobalVariable>(
-          M.getNamedValue("__llvm__unsafe_stack_ptr"));
+          M.getNamedValue(unsafe_stack_ptr_var));
 
     if (!UnsafeStackPtr) {
       // The global variable is not defined yet, define it ourselves
         UnsafeStackPtr = new GlobalVariable(
               /*Module=*/ M, /*Type=*/ Int8Ty->getPointerTo(),
               /*isConstant=*/ false, /*Linkage=*/ GlobalValue::ExternalLinkage,
-              /*Initializer=*/ 0, /*Name=*/ "__llvm__unsafe_stack_ptr");
+              /*Initializer=*/ 0, /*Name=*/ unsafe_stack_ptr_var);
 
       cast<GlobalVariable>(UnsafeStackPtr)->setThreadLocal(true);
 
@@ -302,11 +305,13 @@ bool SafeStack::doPassInitialization(Module &M) {
     } else {
       // The variable exists, check its type and attributes
       if (UnsafeStackPtr->getType() != Int8Ty->getPointerTo()) {
-        report_fatal_error("__llvm__unsafe_stack_ptr must have void* type");
+        report_fatal_error(Twine(unsafe_stack_ptr_var) +
+                           " must have void* type");
       }
 
       if (!cast<GlobalVariable>(UnsafeStackPtr)->isThreadLocal()) {
-        report_fatal_error("__llvm__unsafe_stack_ptr must be thread-local");
+        report_fatal_error(Twine(unsafe_stack_ptr_var) +
+                           " must be thread-local");
       }
 
       // TODO: check other attributes?
@@ -326,16 +331,12 @@ bool SafeStack::runOnFunction(Function &F) {
   SmallVector<AllocaInst*, 4> DynamicAlloca;
   SmallVector<ReturnInst*, 4> Returns;
 
-  // Collect all points where stack gets unwinded and needs to be restored
+  // Collect all points where stack gets unwound and needs to be restored
   // This is only necessary because the runtime (setjmp and unwind code) is
   // not aware of the unsafe stack and won't unwind/restore it prorerly.
   // To work around this problem without changing the runtime, we insert
   // instrumentation to restore the unsafe stack pointer when necessary.
   SmallVector<Instruction*, 4> StackRestorePoints;
-
-  Type *StackPtrTy = Type::getInt8PtrTy(F.getContext());
-  Type *IntPtrTy = DL->getIntPtrType(F.getContext());
-  Type *Int32Ty = Type::getInt32Ty(F.getContext());
 
   // Find all static and dynamic alloca instructions that must be moved to the
   // unsafe stack, all return instructions and stack restore points
@@ -389,7 +390,7 @@ bool SafeStack::runOnFunction(Function &F) {
 
   if (!StaticAlloca.empty()) {
     // We explicitly compute and set the unsafe stack layout for all unsafe
-    // static alloca instructions. We safe the unsafe "base pointer" in the
+    // static alloca instructions. We save the unsafe "base pointer" in the
     // prologue into a local variable and restore it in the epilogue.
 
     // Load the current stack pointer (we'll also use it as a base pointer)
