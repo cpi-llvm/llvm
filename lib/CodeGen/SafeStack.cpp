@@ -74,10 +74,9 @@ bool IsSafeStackAlloca(const AllocaInst *AI, const DataLayout *) {
   // A DFS search through all uses of the alloca in bitcasts/PHI/GEPs/etc.
   while (!WorkList.empty()) {
     const Instruction *V = WorkList.pop_back_val();
-    for (Value::const_use_iterator UI = V->use_begin(),
-                                   UE = V->use_end(); UI != UE; ++UI) {
-      const Instruction *I = cast<const Instruction>(UI->getUser());
-      assert(V == UI->get());
+    for (const Use &UI : V->uses()) {
+      const Instruction *I = cast<const Instruction>(UI.getUser());
+      assert(V == UI.get());
 
       switch (I->getOpcode()) {
       case Instruction::Load:
@@ -178,8 +177,8 @@ class SafeStack : public ModulePass {
   Type *Int8Ty;
 
   bool haveFunctionsWithSafeStack(Module &M) {
-    for (Module::iterator It = M.begin(), Ie = M.end(); It != Ie; ++It) {
-      if (It->hasFnAttribute(Attribute::SafeStack))
+    for (Function &F : M) {
+      if (F.hasFnAttribute(Attribute::SafeStack))
         return true;
     }
     return false;
@@ -228,8 +227,7 @@ public:
     doPassInitialization(M);
 
     // Add safe stack instrumentation to all functions that need it
-    for (Module::iterator It = M.begin(), Ie = M.end(); It != Ie; ++It) {
-      Function &F = *It;
+    for (Function &F : M) {
       DEBUG(dbgs() << "[SafeStack] Function: " << F.getName() << "\n");
 
       if (!F.hasFnAttribute(Attribute::SafeStack)) {
@@ -327,8 +325,8 @@ bool SafeStack::runOnFunction(Function &F) {
   unsigned StackAlignment =
       TM->getSubtargetImpl(F)->getFrameLowering()->getStackAlignment();
 
-  SmallVector<AllocaInst*, 16> StaticAlloca;
-  SmallVector<AllocaInst*, 4> DynamicAlloca;
+  SmallVector<AllocaInst*, 16> StaticAllocas;
+  SmallVector<AllocaInst*, 4> DynamicAllocas;
   SmallVector<ReturnInst*, 4> Returns;
 
   // Collect all points where stack gets unwound and needs to be restored
@@ -351,10 +349,10 @@ bool SafeStack::runOnFunction(Function &F) {
 
       if (AI->isStaticAlloca()) {
         ++NumUnsafeStaticAllocas;
-        StaticAlloca.push_back(AI);
+        StaticAllocas.push_back(AI);
       } else {
         ++NumUnsafeDynamicAllocas;
-        DynamicAlloca.push_back(AI);
+        DynamicAllocas.push_back(AI);
       }
 
     } else if (ReturnInst *RI = dyn_cast<ReturnInst>(I)) {
@@ -372,11 +370,11 @@ bool SafeStack::runOnFunction(Function &F) {
     }
   }
 
-  if (StaticAlloca.empty() && DynamicAlloca.empty() &&
+  if (StaticAllocas.empty() && DynamicAllocas.empty() &&
       StackRestorePoints.empty())
     return false; // Nothing to do in this function
 
-  if (!StaticAlloca.empty() || !DynamicAlloca.empty())
+  if (!StaticAllocas.empty() || !DynamicAllocas.empty())
     ++NumUnsafeStackFunctions; // This function has the unsafe stack
 
   if (!StackRestorePoints.empty())
@@ -388,7 +386,7 @@ bool SafeStack::runOnFunction(Function &F) {
   // The top of the unsafe stack after all unsafe static allocas are allocated
   Value *StaticTop = NULL;
 
-  if (!StaticAlloca.empty()) {
+  if (!StaticAllocas.empty()) {
     // We explicitly compute and set the unsafe stack layout for all unsafe
     // static alloca instructions. We save the unsafe "base pointer" in the
     // prologue into a local variable and restore it in the epilogue.
@@ -399,17 +397,14 @@ bool SafeStack::runOnFunction(Function &F) {
                                               "unsafe_stack_ptr");
     assert(BasePointer->getType() == StackPtrTy);
 
-    for (SmallVectorImpl<ReturnInst*>::iterator It = Returns.begin(),
-                                          Ie = Returns.end(); It != Ie; ++It) {
-      IRB.SetInsertPoint(*It);
+    for (ReturnInst *RI : Returns) {
+      IRB.SetInsertPoint(RI);
       IRB.CreateStore(BasePointer, UnsafeStackPtr);
     }
 
     // Compute maximum alignment among static objects on the unsafe stack
     unsigned MaxAlignment = 0;
-    for (SmallVectorImpl<AllocaInst*>::iterator It = StaticAlloca.begin(),
-                                      Ie = StaticAlloca.end(); It != Ie; ++It) {
-      AllocaInst *AI = *It;
+    for (AllocaInst *AI : StaticAllocas) {
       Type *Ty = AI->getAllocatedType();
       unsigned Align =
         std::max((unsigned)DL->getPrefTypeAlignment(Ty), AI->getAlignment());
@@ -429,9 +424,7 @@ bool SafeStack::runOnFunction(Function &F) {
 
     // Allocate space for every unsafe static AllocaInst on the unsafe stack
     int64_t StaticOffset = 0; // Current stack top
-    for (SmallVectorImpl<AllocaInst*>::iterator It = StaticAlloca.begin(),
-                                      Ie = StaticAlloca.end(); It != Ie; ++It) {
-      AllocaInst *AI = *It;
+    for (AllocaInst *AI : StaticAllocas) {
       IRB.SetInsertPoint(AI);
 
       ConstantInt *CArraySize = cast<ConstantInt>(AI->getArraySize());
@@ -493,7 +486,7 @@ bool SafeStack::runOnFunction(Function &F) {
     // FIXME: in the future, this should be handled by the longjmp/exception
     // runtime itself
 
-    if (!DynamicAlloca.empty()) {
+    if (!DynamicAllocas.empty()) {
       // If we also have dynamic alloca's, the stack pointer value changes
       // throughout the function. For now we store it in an allca.
       DynamicTop = IRB.CreateAlloca(StackPtrTy, 0, "unsafe_stack_dynamic_ptr");
@@ -505,15 +498,13 @@ bool SafeStack::runOnFunction(Function &F) {
       StaticTop = IRB.CreateLoad(UnsafeStackPtr, false, "unsafe_stack_ptr");
     }
 
-    if (!DynamicAlloca.empty()) {
+    if (!DynamicAllocas.empty()) {
       IRB.CreateStore(StaticTop, DynamicTop);
     }
   }
 
   // Handle dynamic alloca now
-  for (SmallVectorImpl<AllocaInst*>::iterator It = DynamicAlloca.begin(),
-                                    Ie = DynamicAlloca.end(); It != Ie; ++It) {
-    AllocaInst *AI = *It;
+  for (AllocaInst *AI : DynamicAllocas) {
     IRB.SetInsertPoint(AI);
 
     // Compute the new SP value (after AI)
@@ -553,7 +544,7 @@ bool SafeStack::runOnFunction(Function &F) {
     AI->eraseFromParent();
   }
 
-  if (!DynamicAlloca.empty()) {
+  if (!DynamicAllocas.empty()) {
     // Now go through the instructions again, replacing stacksave/stackrestore
     for (inst_iterator It = inst_begin(&F), Ie = inst_end(&F); It != Ie;) {
       Instruction *I = &*(It++);
@@ -578,11 +569,10 @@ bool SafeStack::runOnFunction(Function &F) {
   }
 
   // Restore current stack pointer after longjmp/exception catch
-  for (SmallVectorImpl<Instruction*>::iterator I = StackRestorePoints.begin(),
-                                    E = StackRestorePoints.end(); I != E; ++I) {
+  for (Instruction *I : StackRestorePoints) {
     ++NumUnsafeStackRestorePoints;
 
-    IRB.SetInsertPoint(cast<Instruction>((*I)->getNextNode()));
+    IRB.SetInsertPoint(cast<Instruction>(I->getNextNode()));
     Value *CurrentTop = DynamicTop ? IRB.CreateLoad(DynamicTop) : StaticTop;
     IRB.CreateStore(CurrentTop, UnsafeStackPtr);
   }
