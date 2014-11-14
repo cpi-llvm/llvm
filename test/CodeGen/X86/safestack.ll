@@ -24,15 +24,15 @@
 define void @test1a(i8* %a) nounwind uwtable {
 entry:
 ; LINUX-I386: test1a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test1a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test1a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %buf = alloca [16 x i8], align 16
@@ -51,13 +51,13 @@ entry:
 define void @test1b(i8* %a) nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test1b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test1b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test1b:
@@ -80,15 +80,15 @@ entry:
 define void @test2a(i8* %a) nounwind uwtable {
 entry:
 ; LINUX-I386: test2a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test2a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test2a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %b = alloca %struct.foo, align 1
@@ -109,13 +109,13 @@ entry:
 define void @test2b(i8* %a) nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test2b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test2b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test2b:
@@ -140,15 +140,15 @@ entry:
 define void @test3a(i8* %a) nounwind uwtable {
 entry:
 ; LINUX-I386: test3a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test3a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test3a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %buf = alloca [4 x i8], align 1
@@ -167,13 +167,13 @@ entry:
 define void @test3b(i8* %a) nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test3b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test3b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test3b:
@@ -196,15 +196,15 @@ entry:
 define void @test4a(i8* %a) nounwind uwtable {
 entry:
 ; LINUX-I386: test4a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test4a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test4a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %b = alloca %struct.foo.0, align 1
@@ -225,13 +225,13 @@ entry:
 define void @test4b(i8* %a) nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test4b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test4b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test4b:
@@ -256,15 +256,15 @@ entry:
 define void @test5a(i8* %a) nounwind uwtable {
 entry:
 ; LINUX-I386: test5a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test5a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test5a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   store i8* %a, i8** %a.addr, align 8
@@ -279,15 +279,15 @@ entry:
 define void @test5b(i8* %a) nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test5b:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test5b:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test5b:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   store i8* %a, i8** %a.addr, align 8
@@ -302,15 +302,15 @@ entry:
 define void @test6a() nounwind uwtable {
 entry:
 ; LINUX-I386: test6a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test6a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test6a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %retval = alloca i32, align 4
   %a = alloca i32, align 4
@@ -329,13 +329,13 @@ entry:
 define void @test6b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test6b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test6b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test6b:
@@ -358,15 +358,15 @@ entry:
 define void @test7a() nounwind uwtable readnone {
 entry:
 ; LINUX-I386: test7a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test7a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test7a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   %0 = ptrtoint i32* %a to i64
@@ -380,15 +380,15 @@ entry:
 define void @test7b() nounwind uwtable readnone safestack {
 entry:
 ; LINUX-I386: test7b:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test7b:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test7b:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   %0 = ptrtoint i32* %a to i64
@@ -402,15 +402,15 @@ entry:
 define void @test8a() nounwind uwtable {
 entry:
 ; LINUX-I386: test8a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test8a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test8a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %b = alloca i32, align 4
   call void @funcall(i32* %b) nounwind
@@ -423,13 +423,13 @@ entry:
 define void @test8b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test8b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test8b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test8b:
@@ -446,15 +446,15 @@ entry:
 define void @test9a() nounwind uwtable {
 entry:
 ; LINUX-I386: test9a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test9a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test9a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %x = alloca double, align 8
   %call = call double @testi_aux() nounwind
@@ -471,13 +471,13 @@ entry:
 define void @test9b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test9b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test9b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test9b:
@@ -498,15 +498,15 @@ entry:
 define void @test10a() nounwind uwtable {
 entry:
 ; LINUX-I386: test10a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test10a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test10a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %x = alloca double, align 8
   %call = call double @testi_aux() nounwind
@@ -538,13 +538,13 @@ if.end4:                                          ; preds = %if.else, %if.then3,
 define void @test10b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test10b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test10b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test10b:
@@ -580,15 +580,15 @@ if.end4:                                          ; preds = %if.else, %if.then3,
 define void @test11a() nounwind uwtable {
 entry:
 ; LINUX-I386: test11a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test11a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test11a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.pair, align 4
   %b = alloca i32*, align 8
@@ -605,13 +605,13 @@ entry:
 define void @test11b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test11b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test11b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test11b:
@@ -632,15 +632,15 @@ entry:
 define void @test12a() nounwind uwtable {
 entry:
 ; LINUX-I386: test12a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test12a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test12a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.pair, align 4
   %b = alloca i32*, align 8
@@ -656,13 +656,13 @@ entry:
 define void @test12b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test12b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test12b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test12b:
@@ -682,15 +682,15 @@ entry:
 define void @test13a() nounwind uwtable {
 entry:
 ; LINUX-I386: test13a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test13a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test13a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.pair, align 4
   %y = getelementptr inbounds %struct.pair* %c, i64 0, i32 1
@@ -704,13 +704,13 @@ entry:
 define void @test13b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test13b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test13b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test13b:
@@ -728,15 +728,15 @@ entry:
 define void @test14a() nounwind uwtable {
 entry:
 ; LINUX-I386: test14a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test14a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test14a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   %add.ptr5 = getelementptr inbounds i32* %a, i64 -12
@@ -750,13 +750,13 @@ entry:
 define void @test14b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test14b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test14b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test14b:
@@ -775,15 +775,15 @@ entry:
 define void @test15a() nounwind uwtable {
 entry:
 ; LINUX-I386: test15a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test15a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test15a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   %b = alloca float*, align 8
@@ -802,13 +802,13 @@ entry:
 define void @test15b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test15b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test15b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test15b:
@@ -831,15 +831,15 @@ entry:
 define void @test16a() nounwind uwtable {
 entry:
 ; LINUX-I386: test16a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test16a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test16a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   store i32 0, i32* %a, align 4
@@ -855,13 +855,13 @@ entry:
 define void @test16b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test16b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test16b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test16b:
@@ -880,15 +880,15 @@ entry:
 define void @test17a() nounwind uwtable {
 entry:
 ; LINUX-I386: test17a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test17a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test17a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.vec, align 16
   %y = getelementptr inbounds %struct.vec* %c, i64 0, i32 0
@@ -903,13 +903,13 @@ entry:
 define void @test17b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test17b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test17b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test17b:
@@ -928,15 +928,15 @@ entry:
 define i32 @test18a() uwtable {
 entry:
 ; LINUX-I386: test18a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test18a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test18a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32, align 4
   %exn.slot = alloca i8*
@@ -960,13 +960,13 @@ lpad:
 define i32 @test18b() uwtable safestack {
 entry:
 ; LINUX-I386: test18b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test18b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test18b:
@@ -995,15 +995,15 @@ lpad:
 define i32 @test19a() uwtable {
 entry:
 ; LINUX-I386: test19a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test19a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test19a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.pair, align 4
   %exn.slot = alloca i8*
@@ -1030,13 +1030,13 @@ lpad:
 define i32 @test19b() uwtable safestack {
 entry:
 ; LINUX-I386: test19b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test19b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test19b:
@@ -1066,15 +1066,15 @@ lpad:
 define void @test20a() nounwind uwtable {
 entry:
 ; LINUX-I386: test20a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test20a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test20a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32*, align 8
   %b = alloca i32**, align 8
@@ -1092,13 +1092,13 @@ entry:
 define void @test20b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test20b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test20b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test20b:
@@ -1120,15 +1120,15 @@ entry:
 define void @test21a() nounwind uwtable {
 entry:
 ; LINUX-I386: test21a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test21a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test21a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca i32*, align 8
   %b = alloca float**, align 8
@@ -1147,13 +1147,13 @@ entry:
 define void @test21b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test21b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test21b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test21b:
@@ -1176,15 +1176,15 @@ entry:
 define signext i8 @test22a() nounwind uwtable {
 entry:
 ; LINUX-I386: test22a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test22a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test22a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca %class.A, align 1
   %array = getelementptr inbounds %class.A* %a, i32 0, i32 0
@@ -1199,15 +1199,15 @@ entry:
 define signext i8 @test22b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test22b:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test22b:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test22b:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca %class.A, align 1
   %array = getelementptr inbounds %class.A* %a, i32 0, i32 0
@@ -1222,15 +1222,15 @@ entry:
 define signext i8 @test23a() nounwind uwtable {
 entry:
 ; LINUX-I386: test23a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test23a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test23a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %x = alloca %struct.deep, align 1
   %b = getelementptr inbounds %struct.deep* %x, i32 0, i32 0
@@ -1249,15 +1249,15 @@ entry:
 define signext i8 @test23b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test23b:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test23b:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test23b:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %x = alloca %struct.deep, align 1
   %b = getelementptr inbounds %struct.deep* %x, i32 0, i32 0
@@ -1276,15 +1276,15 @@ entry:
 define void @test24a(i32 %n) nounwind uwtable {
 entry:
 ; LINUX-I386: test24a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test24a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test24a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %n.addr = alloca i32, align 4
   %a = alloca i32*, align 8
@@ -1303,13 +1303,13 @@ entry:
 define void @test24b(i32 %n) nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test24b:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test24b:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test24b:
@@ -1332,15 +1332,15 @@ entry:
 define i32 @test25a() nounwind uwtable {
 entry:
 ; LINUX-I386: test25a:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test25a:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test25a:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca [4 x i32], align 16
   %arrayidx = getelementptr inbounds [4 x i32]* %a, i32 0, i64 0
@@ -1354,15 +1354,15 @@ entry:
 define i32 @test25b() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test25b:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test25b:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test25b:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %a = alloca [4 x i32], align 16
   %arrayidx = getelementptr inbounds [4 x i32]* %a, i32 0, i64 0
@@ -1378,15 +1378,15 @@ entry:
 define void @test26() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test26:
-; LINUX-I386-NOT: movl	__unsafe_stack_ptr
+; LINUX-I386-NOT: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test26:
-; LINUX-X64-NOT: movq	__unsafe_stack_ptr
+; LINUX-X64-NOT: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test26:
-; DARWIN-X64-NOT: movq	___unsafe_stack_ptr
+; DARWIN-X64-NOT: movq	___safestack_unsafe_stack_ptr
 ; DARWIN-X64: .cfi_endproc
   %c = alloca %struct.nest, align 4
   %b = getelementptr inbounds %struct.nest* %c, i32 0, i32 1
@@ -1405,13 +1405,13 @@ entry:
 define i32 @test27(i32 %arg) nounwind uwtable safestack {
 bb:
 ; LINUX-I386: test27:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test27:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 ; LINUX-X64: .cfi_endproc
 
 ; DARWIN-X64: test27:
@@ -1459,12 +1459,12 @@ bb21:                                             ; preds = %bb6, %bb
 define i32 @test28() nounwind uwtable safestack {
 entry:
 ; LINUX-I386: test28:
-; LINUX-I386: movl	__unsafe_stack_ptr
+; LINUX-I386: movl	__safestack_unsafe_stack_ptr
 ; LINUX-I386-NEXT: movl	%gs:
 ; LINUX-I386: .cfi_endproc
 
 ; LINUX-X64: test28:
-; LINUX-X64: movq	__unsafe_stack_ptr
+; LINUX-X64: movq	__safestack_unsafe_stack_ptr
 
 ; LINUX-X64: .cfi_endproc
 
