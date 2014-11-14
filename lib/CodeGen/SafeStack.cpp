@@ -282,7 +282,7 @@ bool SafeStack::doPassInitialization(Module &M) {
     // The unsafe stack pointer is stored in a global variable with a magic name
     // FIXME: share this constant between LLVM and compiler-rt
     // FIXME: make the name start with "llvm."
-    static const char* unsafe_stack_ptr_var = "__llvm__unsafe_stack_ptr";
+    static const char* unsafe_stack_ptr_var = "__safestack_unsafe_stack_ptr";
 
     UnsafeStackPtr = dyn_cast_or_null<GlobalVariable>(
           M.getNamedValue(unsafe_stack_ptr_var));
