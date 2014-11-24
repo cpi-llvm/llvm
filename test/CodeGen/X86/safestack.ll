@@ -2,6 +2,8 @@
 ; RUN: llc -mtriple=x86_64-pc-linux-gnu < %s -o - | FileCheck --check-prefix=LINUX-X64 %s
 ; RUN: llc -mtriple=x86_64-apple-darwin < %s -o - >/tmp/x
 ; RUN: llc -mtriple=x86_64-apple-darwin < %s -o - | FileCheck --check-prefix=DARWIN-X64 %s
+; RUN: llc -mtriple=i386-unknown-freebsd10.1 < %s -o - | FileCheck --check-prefix=FREEBSD-I386 %s
+; RUN: llc -mtriple=x86_64-unknown-freebsd10.1 < %s -o - | FileCheck --check-prefix=FREEBSD-X64 %s
 
 %struct.foo = type { [16 x i8] }
 %struct.foo.0 = type { [4 x i8] }
@@ -63,6 +65,14 @@ entry:
 ; DARWIN-X64: test1b:
 ; DARWIN-X64: movq	%gs:1536
 ; DARWIN-X64: .cfi_endproc
+
+; FREEBSD-I386: test1b:
+; FREEBSD-I386: movl %gs:12
+; FREEBSD-I386: .cfi_endproc
+
+; FREEBSD-X64: test1b:
+; FREEBSD-X64: movq %fs:24
+; FREEBSD-X64: .cfi_endproc
   %a.addr = alloca i8*, align 8
   %buf = alloca [16 x i8], align 16
   store i8* %a, i8** %a.addr, align 8

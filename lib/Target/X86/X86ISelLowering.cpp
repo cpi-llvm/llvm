@@ -1967,6 +1967,17 @@ bool X86TargetLowering::getUnsafeStackPtrLocation(unsigned &AddressSpace,
    * function above). Doing so requires changing the tcbhead_t struct in glibc
    * on Linux and tcb struct in libc on FreeBSD.
    */
+  if (Subtarget->isTargetFreeBSD() &&
+      getTargetMachine().getCodeModel() != CodeModel::Kernel) {
+    if (Subtarget->is32Bit())
+      AddressSpace = 256; // X86::GS;
+    else if (Subtarget->is64Bit())
+      AddressSpace = 257; // X86::FS;
+    else
+      return false;
+    Offset = 3 * (Subtarget->getDataLayout()->getPointerSize());
+    return true;
+  }
 
   // By default, the unsafe stack pointer will be stored in a thread-local
   // variable with a predefined name.
