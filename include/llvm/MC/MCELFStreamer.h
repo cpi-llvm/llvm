@@ -55,6 +55,7 @@ public:
   void InitSections(bool NoExecStack) override;
   void ChangeSection(const MCSection *Section,
                      const MCExpr *Subsection) override;
+  void EmitSafeStackNote() override;
   void EmitLabel(MCSymbol *Symbol) override;
   void EmitAssemblerFlag(MCAssemblerFlag Flag) override;
   void EmitThumbFunc(MCSymbol *Func) override;
