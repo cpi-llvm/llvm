@@ -68,7 +68,7 @@ void MCELFStreamer::EmitSafeStackNote() {
   EmitIntValue(sizeof (NoteNamespace), 4); // namesz
   EmitIntValue(0, 4);                      // descsz
   EmitIntValue(0, 4);                      // type
-  EmitBytes(StringRef(NoteNamespace, sizeof (NoteNamespace)));
+  EmitBytes(StringRef(NoteNamespace, sizeof (NoteNamespace))); // includes '\0'
   EmitValueToAlignment(4, 0, 1, 0);
   PopSection();
 }

@@ -227,6 +227,7 @@ public:
     doPassInitialization(M);
 
     // Add safe stack instrumentation to all functions that need it
+    bool safestack_applied = false;
     for (Function &F : M) {
       DEBUG(dbgs() << "[SafeStack] Function: " << F.getName() << "\n");
 
@@ -260,8 +261,13 @@ public:
       }
 
       runOnFunction(F);
+      safestack_applied = true;
       DEBUG(dbgs() << "[SafeStack]     safestack applied\n");
     }
+
+    // If we applied safe stack, lets keep a flag on the module
+    if (safestack_applied)
+      M.addModuleFlag(M.Override, "SafeStack", 1);
 
     return true;
   }
