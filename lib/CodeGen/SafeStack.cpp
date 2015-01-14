@@ -165,6 +165,7 @@ class SafeStack : public ModulePass {
   const TargetMachine *TM;
   const TargetLoweringBase *TLI;
   const DataLayout *DL;
+  unsigned NoSafeStackMDKind;
 
   AliasAnalysis *AA;
 
@@ -222,6 +223,7 @@ public:
     IntPtrTy = DL->getIntPtrType(M.getContext());
     Int32Ty = Type::getInt32Ty(M.getContext());
     Int8Ty = Type::getInt8Ty(M.getContext());
+    NoSafeStackMDKind = M.getMDKindID("no_safe_stack");
 
     // Add module-level code (e.g., runtime support function prototypes)
     doPassInitialization(M);
@@ -350,7 +352,7 @@ bool SafeStack::runOnFunction(Function &F) {
     if (AllocaInst *AI = dyn_cast<AllocaInst>(I)) {
       ++NumAllocas;
 
-      if (IsSafeStackAlloca(AI))
+      if (AI->getMetadata(NoSafeStackMDKind) || IsSafeStackAlloca(AI))
         continue;
 
       if (AI->isStaticAlloca()) {
