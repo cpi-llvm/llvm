@@ -9664,20 +9664,20 @@ are described in :doc:`StackMaps`.
 SafeStack Intrinsics
 --------------------
 
-'``llvm.safestack_get_sp``' Intrinsic
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+'``llvm.safestack_get_usp``' Intrinsic
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Syntax:
 """""""
 
 ::
 
-      declare i8* @llvm.safestack_get_sp()
+      declare i8* @llvm.safestack_get_usp()
 
 Overview:
 """""""""
 
-The ``llvm.safestack_get_sp()`` intrinsic returns the pointer to the unsafe stack.
+The ``llvm.safestack_get_usp()`` intrinsic returns the pointer to the unsafe stack.
 
 Arguments:
 """"""""""
@@ -9689,20 +9689,20 @@ Semantics:
 
 The intrinsic helps to get the unsafe stack pointer.
 
-'``llvm.safestack_get_sp``' Intrinsic
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+'``llvm.safestack_get_usp``' Intrinsic
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Syntax:
 """""""
 
 ::
 
-      declare void @llvm.safestack_set_sp(i8*)
+      declare void @llvm.safestack_set_usp(i8*)
 
 Overview:
 """""""""
 
-The ``llvm.safestack_set_sp(i8*)`` intrinsic sets the unsafe stack pointer.
+The ``llvm.safestack_set_usp(i8*)`` intrinsic sets the unsafe stack pointer.
 
 Arguments:
 """"""""""
