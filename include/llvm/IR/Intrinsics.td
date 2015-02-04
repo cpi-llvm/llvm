@@ -493,6 +493,11 @@ def int_experimental_patchpoint_i64 : Intrinsic<[llvm_i64_ty],
                                                  llvm_vararg_ty],
                                                  [Throws]>;
 
+//===------------------------- SafeStack Intrinsics -----------------------===//
+
+def int_safestack_get_sp : Intrinsic<[llvm_anyptr_ty], []>;
+def int_safestack_set_sp : Intrinsic<[], [llvm_anyptr_ty]>;
+
 //===-------------------------- Other Intrinsics --------------------------===//
 //
 def int_flt_rounds : Intrinsic<[llvm_i32_ty]>,
