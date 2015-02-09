@@ -4611,9 +4611,10 @@ SelectionDAGBuilder::visitIntrinsicCall(const CallInst &I, unsigned Intrinsic) {
     visitTargetIntrinsic(I, Intrinsic);
     return nullptr;
   case Intrinsic::safestack_get_usp: {
-    setValue(&I, getValue(
+    SDValue V = getValue(
       new LoadInst(TLI.getUnsafeStackPtr(
-        I.getContext()), "safestack_get_sp", &I)));
+        I.getContext()), "safestack_get_sp", &I));
+    setValue(&I, V);
     return nullptr;
   }
   case Intrinsic::safestack_set_usp: {
