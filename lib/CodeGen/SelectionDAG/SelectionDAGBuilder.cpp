@@ -4630,9 +4630,9 @@ SelectionDAGBuilder::visitIntrinsicCall(const CallInst &I, unsigned Intrinsic) {
     SDValue Arg0 = getValue(I.getArgOperand(0));
     SDValue V = DAG.getStore(Root, sdl, Arg0, Ptr, MachinePointerInfo(PtrVal),
                              false /* volatile */,
-                             false /* istemporal */,
-                             0 /* alignment */);
-    setValue(&I, V);
+                             false /* nontemporal */,
+                             1 /* alignment */);
+    DAG.setRoot(V);
     return nullptr;
   }
   case Intrinsic::vastart:  visitVAStart(I); return nullptr;
