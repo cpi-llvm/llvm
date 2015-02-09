@@ -495,8 +495,10 @@ def int_experimental_patchpoint_i64 : Intrinsic<[llvm_i64_ty],
 
 //===------------------------- SafeStack Intrinsics -----------------------===//
 
-def int_safestack_get_usp : Intrinsic<[llvm_anyptr_ty], []>;
-def int_safestack_set_usp : Intrinsic<[], [llvm_anyptr_ty]>;
+def int_safestack_get_usp : Intrinsic<[llvm_anyptr_ty], []>,
+			    GCCBuiltin<"__builtin_safestack_get_usp">;
+def int_safestack_set_usp : Intrinsic<[], [llvm_anyptr_ty]>,
+			    GCCBuiltin<"__builtin_safestack_set_ups">;
 
 //===-------------------------- Other Intrinsics --------------------------===//
 //
