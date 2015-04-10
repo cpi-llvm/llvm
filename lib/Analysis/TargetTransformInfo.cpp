@@ -271,6 +271,11 @@ Value *TargetTransformInfo::getOrCreateResultFromMemIntrinsic(
   return TTIImpl->getOrCreateResultFromMemIntrinsic(Inst, ExpectedType);
 }
 
+bool TargetTransformInfo::getUnsafeStackPtrLocation(unsigned &AddressSpace,
+                                                    unsigned &Offset) const {
+  return TTIImpl->getUnsafeStackPtrLocation(AddressSpace, Offset);
+}
+
 TargetTransformInfo::Concept::~Concept() {}
 
 TargetIRAnalysis::TargetIRAnalysis() : TTICallback(&getDefaultTTI) {}

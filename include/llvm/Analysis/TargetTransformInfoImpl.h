@@ -323,6 +323,10 @@ public:
                                            Type *ExpectedType) {
     return nullptr;
   }
+
+  bool getUnsafeStackPtrLocation(unsigned &AddressSpace, unsigned &Offset) {
+    return false;
+  }
 };
 
 /// \brief CRTP base class for use as a mix-in that aids implementing

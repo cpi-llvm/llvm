@@ -14,7 +14,6 @@
 //===----------------------------------------------------------------------===//
 
 #define DEBUG_TYPE "safestack"
-#include "llvm/Support/Debug.h"
 #include "llvm/CodeGen/Passes.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -29,11 +28,9 @@
 #include "llvm/IR/DataLayout.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/CommandLine.h"
+#include "llvm/Support/Debug.h"
 #include "llvm/Analysis/AliasAnalysis.h"
-#include "llvm/Target/TargetLowering.h"
-#include "llvm/Target/TargetOptions.h"
-#include "llvm/Target/TargetSubtargetInfo.h"
-#include "llvm/Target/TargetFrameLowering.h"
+#include "llvm/Analysis/TargetTransformInfo.h"
 #include "llvm/Transforms/Utils/ModuleUtils.h"
 #include "llvm/Transforms/Utils/Local.h"
 #include "llvm/ADT/Triple.h"
@@ -162,7 +159,6 @@ bool IsSafeStackAlloca(const AllocaInst *AI, const DataLayout *) {
 /// (as determined statically), and the unsafe stack, which contains all
 /// local variables that are accessed in unsafe ways.
 class SafeStack : public ModulePass {
-  const TargetMachine *TM;
   const DataLayout *DL;
 
   AliasAnalysis *AA;
@@ -186,17 +182,13 @@ class SafeStack : public ModulePass {
 
 public:
   static char ID; // Pass identification, replacement for typeid.
-  SafeStack(): ModulePass(ID), TM(nullptr), DL(nullptr) {
-    initializeSafeStackPass(*PassRegistry::getPassRegistry());
-  }
-
-  SafeStack(const TargetMachine *TM)
-      : ModulePass(ID), TM(TM), DL(nullptr) {
+  SafeStack(): ModulePass(ID), DL(nullptr) {
     initializeSafeStackPass(*PassRegistry::getPassRegistry());
   }
 
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
     AU.addRequired<AliasAnalysis>();
+    AU.addRequired<TargetTransformInfoWrapperPass>();
   }
 
   virtual bool runOnModule(Module &M) {
@@ -211,7 +203,6 @@ public:
 
     AA = &getAnalysis<AliasAnalysis>();
 
-    assert(TM != NULL && "SafeStack requires TargetMachine");
     DL = &M.getDataLayout();
 
     StackPtrTy = Type::getInt8PtrTy(M.getContext());
@@ -261,12 +252,12 @@ public:
 }; // class SafeStack
 
 Constant *SafeStack::getUnsafeStackPtr(Function &F) {
-  unsigned AddressSpace, Offset;
-
-  const TargetLoweringBase *TLI = TM->getSubtargetImpl(F)->getTargetLowering();
+  const TargetTransformInfo *TTI =
+      &getAnalysis<TargetTransformInfoWrapperPass>().getTTI(F);
 
   // Check where the unsafe stack pointer is stored on this architecture
-  if (TLI->getUnsafeStackPtrLocation(AddressSpace, Offset)) {
+  unsigned AddressSpace, Offset;
+  if (TTI->getUnsafeStackPtrLocation(AddressSpace, Offset)) {
     // The unsafe stack pointer is stored at a fixed location
     // (usually in the thread control block)
     Constant *OffsetVal = ConstantInt::get(Int32Ty, Offset);
@@ -309,8 +300,7 @@ Constant *SafeStack::getUnsafeStackPtr(Function &F) {
 bool SafeStack::runOnFunction(Function &F) {
   ++NumFunctions;
 
-  unsigned StackAlignment =
-      TM->getSubtargetImpl(F)->getFrameLowering()->getStackAlignment();
+  unsigned StackAlignment = 16;
   Constant *UnsafeStackPtr = getUnsafeStackPtr(F);
 
   SmallVector<AllocaInst*, 16> StaticAllocas;
@@ -571,9 +561,13 @@ bool SafeStack::runOnFunction(Function &F) {
 } // end anonymous namespace
 
 char SafeStack::ID = 0;
-INITIALIZE_PASS(SafeStack, "safe-stack",
-                "Safe Stack instrumentation pass", false, false)
+INITIALIZE_PASS_BEGIN(SafeStack, "safe-stack",
+                      "Safe Stack instrumentation pass", false, false)
+INITIALIZE_PASS_DEPENDENCY(TargetTransformInfoWrapperPass)
+INITIALIZE_PASS_END(SafeStack, "safe-stack",
+                    "Safe Stack instrumentation pass", false, false)
 
-Pass *llvm::createSafeStackPass(const TargetMachine *TM) {
-  return new SafeStack(TM);
+
+Pass *llvm::createSafeStackPass() {
+  return new SafeStack();
 }

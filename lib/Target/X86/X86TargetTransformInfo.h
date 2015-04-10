@@ -103,6 +103,8 @@ public:
                          Type *Ty);
   bool isLegalMaskedLoad(Type *DataType, int Consecutive);
   bool isLegalMaskedStore(Type *DataType, int Consecutive);
+  bool getUnsafeStackPtrLocation(unsigned &AddressSpace,
+                                 unsigned &Offset);
 
   /// @}
 };

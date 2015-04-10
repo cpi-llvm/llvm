@@ -489,6 +489,12 @@ public:
   Value *getOrCreateResultFromMemIntrinsic(IntrinsicInst *Inst,
                                            Type *ExpectedType) const;
 
+  /// \returns True if the target stores the unsafe stack pointer for the safe
+  /// stack instrumentation at a fixed offset in some non-standard address
+  /// space, and populates the address space and offset as appropriate.
+  bool getUnsafeStackPtrLocation(unsigned &AddressSpace,
+                                 unsigned &Offset) const;
+
   /// @}
 
 private:
@@ -582,6 +588,8 @@ public:
                                   MemIntrinsicInfo &Info) = 0;
   virtual Value *getOrCreateResultFromMemIntrinsic(IntrinsicInst *Inst,
                                                    Type *ExpectedType) = 0;
+  virtual bool getUnsafeStackPtrLocation(unsigned &AddressSpace,
+                                         unsigned &Offset) = 0;
 };
 
 template <typename T>
@@ -752,6 +760,10 @@ public:
   Value *getOrCreateResultFromMemIntrinsic(IntrinsicInst *Inst,
                                            Type *ExpectedType) override {
     return Impl.getOrCreateResultFromMemIntrinsic(Inst, ExpectedType);
+  }
+  bool getUnsafeStackPtrLocation(unsigned &AddressSpace,
+                                 unsigned &Offset) override {
+    return Impl.getUnsafeStackPtrLocation(AddressSpace, Offset);
   }
 };
 
