@@ -1848,7 +1848,7 @@ bool X86TargetLowering::getUnsafeStackPtrLocation(unsigned &AddressSpace,
      * %gs:(192 * sizeof(void*))
      */
     AddressSpace = 256;
-    Offset = 192 * (Subtarget->getDataLayout()->getPointerSize());
+    Offset = 192 * TD->getPointerSize();
     return true;
   }
 

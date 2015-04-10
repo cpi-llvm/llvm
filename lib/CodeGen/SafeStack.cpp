@@ -112,7 +112,7 @@ bool IsSafeStackAlloca(const AllocaInst *AI, const DataLayout *) {
       case Instruction::Select:
         // The object can be safe or not, depending on how the result of the
         // BitCast/PHI/Select/GEP/etc. is used.
-        if (Visited.insert(I))
+        if (Visited.insert(I).second)
           WorkList.push_back(cast<const Instruction>(I));
         break;
 
@@ -163,13 +163,9 @@ bool IsSafeStackAlloca(const AllocaInst *AI, const DataLayout *) {
 /// local variables that are accessed in unsafe ways.
 class SafeStack : public ModulePass {
   const TargetMachine *TM;
-  const TargetLoweringBase *TLI;
   const DataLayout *DL;
 
   AliasAnalysis *AA;
-
-  /// Thread-local variable that stores the unsafe stack pointer
-  Value *UnsafeStackPtr;
 
   Type *StackPtrTy;
   Type *IntPtrTy;
@@ -184,17 +180,18 @@ class SafeStack : public ModulePass {
     return false;
   }
 
-  bool doPassInitialization(Module &M);
   bool runOnFunction(Function &F);
+
+  Constant *getUnsafeStackPtr(Function &F);
 
 public:
   static char ID; // Pass identification, replacement for typeid.
-  SafeStack(): ModulePass(ID), TM(nullptr), TLI(nullptr), DL(nullptr) {
+  SafeStack(): ModulePass(ID), TM(nullptr), DL(nullptr) {
     initializeSafeStackPass(*PassRegistry::getPassRegistry());
   }
 
   SafeStack(const TargetMachine *TM)
-      : ModulePass(ID), TM(TM), TLI(nullptr), DL(nullptr) {
+      : ModulePass(ID), TM(TM), DL(nullptr) {
     initializeSafeStackPass(*PassRegistry::getPassRegistry());
   }
 
@@ -215,16 +212,12 @@ public:
     AA = &getAnalysis<AliasAnalysis>();
 
     assert(TM != NULL && "SafeStack requires TargetMachine");
-    TLI = TM->getSubtargetImpl()->getTargetLowering();
-    DL = TLI->getDataLayout();
+    DL = &M.getDataLayout();
 
     StackPtrTy = Type::getInt8PtrTy(M.getContext());
     IntPtrTy = DL->getIntPtrType(M.getContext());
     Int32Ty = Type::getInt32Ty(M.getContext());
     Int8Ty = Type::getInt8Ty(M.getContext());
-
-    // Add module-level code (e.g., runtime support function prototypes)
-    doPassInitialization(M);
 
     // Add safe stack instrumentation to all functions that need it
     for (Function &F : M) {
@@ -267,56 +260,50 @@ public:
   }
 }; // class SafeStack
 
-bool SafeStack::doPassInitialization(Module &M) {
+Constant *SafeStack::getUnsafeStackPtr(Function &F) {
   unsigned AddressSpace, Offset;
-  bool Changed = false;
+
+  const TargetLoweringBase *TLI = TM->getSubtargetImpl(F)->getTargetLowering();
 
   // Check where the unsafe stack pointer is stored on this architecture
   if (TLI->getUnsafeStackPtrLocation(AddressSpace, Offset)) {
     // The unsafe stack pointer is stored at a fixed location
     // (usually in the thread control block)
     Constant *OffsetVal = ConstantInt::get(Int32Ty, Offset);
-    UnsafeStackPtr = ConstantExpr::getIntToPtr(OffsetVal,
-                        Int8Ty->getPointerTo()->getPointerTo(AddressSpace));
+    return ConstantExpr::getIntToPtr(
+        OffsetVal, Int8Ty->getPointerTo()->getPointerTo(AddressSpace));
   } else {
     // The unsafe stack pointer is stored in a global variable with a magic name
     // FIXME: share this constant between LLVM and compiler-rt
     // FIXME: make the name start with "llvm."
     static const char* unsafe_stack_ptr_var = "__safestack_unsafe_stack_ptr";
 
-    UnsafeStackPtr = dyn_cast_or_null<GlobalVariable>(
-          M.getNamedValue(unsafe_stack_ptr_var));
+    auto UnsafeStackPtr = dyn_cast_or_null<GlobalVariable>(
+          F.getParent()->getNamedValue(unsafe_stack_ptr_var));
 
     if (!UnsafeStackPtr) {
       // The global variable is not defined yet, define it ourselves
-        UnsafeStackPtr = new GlobalVariable(
-              /*Module=*/ M, /*Type=*/ Int8Ty->getPointerTo(),
-              /*isConstant=*/ false, /*Linkage=*/ GlobalValue::ExternalLinkage,
-              /*Initializer=*/ 0, /*Name=*/ unsafe_stack_ptr_var);
+      UnsafeStackPtr = new GlobalVariable(
+          /*Module=*/*F.getParent(), /*Type=*/Int8Ty->getPointerTo(),
+          /*isConstant=*/false, /*Linkage=*/GlobalValue::ExternalLinkage,
+          /*Initializer=*/0, /*Name=*/unsafe_stack_ptr_var);
 
-      cast<GlobalVariable>(UnsafeStackPtr)->setThreadLocal(true);
-
-      // TODO: should we place the unsafe stack ptr global in a special section?
-      // UnsafeStackPtr->setSection(".llvm.safestack");
-
-      Changed = true;
+      UnsafeStackPtr->setThreadLocal(true);
     } else {
       // The variable exists, check its type and attributes
-      if (UnsafeStackPtr->getType() != Int8Ty->getPointerTo()) {
+      if (UnsafeStackPtr->getValueType() != Int8Ty->getPointerTo()) {
         report_fatal_error(Twine(unsafe_stack_ptr_var) +
                            " must have void* type");
       }
 
-      if (!cast<GlobalVariable>(UnsafeStackPtr)->isThreadLocal()) {
+      if (!UnsafeStackPtr->isThreadLocal()) {
         report_fatal_error(Twine(unsafe_stack_ptr_var) +
                            " must be thread-local");
       }
-
-      // TODO: check other attributes?
     }
-  }
 
-  return Changed;
+    return UnsafeStackPtr;
+  }
 }
 
 bool SafeStack::runOnFunction(Function &F) {
@@ -324,6 +311,7 @@ bool SafeStack::runOnFunction(Function &F) {
 
   unsigned StackAlignment =
       TM->getSubtargetImpl(F)->getFrameLowering()->getStackAlignment();
+  Constant *UnsafeStackPtr = getUnsafeStackPtr(F);
 
   SmallVector<AllocaInst*, 16> StaticAllocas;
   SmallVector<AllocaInst*, 4> DynamicAllocas;
@@ -449,7 +437,7 @@ bool SafeStack::runOnFunction(Function &F) {
         cast<Instruction>(NewAI)->takeName(AI);
 
       // Replace alloc with the new location
-      replaceDbgDeclareForAlloca(AI, NewAI, DIB);
+      replaceDbgDeclareForAlloca(AI, NewAI, DIB, /*Deref=*/true);
       AI->replaceAllUsesWith(NewAI);
       AI->eraseFromParent();
     }
@@ -539,7 +527,7 @@ bool SafeStack::runOnFunction(Function &F) {
     if (AI->hasName() && isa<Instruction>(NewAI))
       NewAI->takeName(AI);
 
-    replaceDbgDeclareForAlloca(AI, NewAI, DIB);
+    replaceDbgDeclareForAlloca(AI, NewAI, DIB, /*Deref=*/true);
     AI->replaceAllUsesWith(NewAI);
     AI->eraseFromParent();
   }

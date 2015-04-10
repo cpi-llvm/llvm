@@ -99,7 +99,7 @@ static void AdjustCallerSSPLevel(Function *Caller, Function *Callee) {
                                               AttributeSet::FunctionIndex,
                                               B);
 
-  if (CalleeAttr.hasFnAttribute(Attribute::SafeStack)) {
+  if (Callee->hasFnAttribute(Attribute::SafeStack)) {
     Caller->removeAttributes(AttributeSet::FunctionIndex, OldSSPAttr);
     Caller->addFnAttr(Attribute::SafeStack);
   } else if (Callee->hasFnAttribute(Attribute::StackProtectReq) &&
