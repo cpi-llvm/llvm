@@ -286,9 +286,9 @@ Constant *SafeStack::getUnsafeStackPtr(Function &F) {
       UnsafeStackPtr = new GlobalVariable(
           /*Module=*/*F.getParent(), /*Type=*/Int8Ty->getPointerTo(),
           /*isConstant=*/false, /*Linkage=*/GlobalValue::ExternalLinkage,
-          /*Initializer=*/0, /*Name=*/unsafe_stack_ptr_var);
-
-      UnsafeStackPtr->setThreadLocal(true);
+          /*Initializer=*/0, /*Name=*/unsafe_stack_ptr_var,
+          /*InsertBefore=*/nullptr,
+          /*ThreadLocalMode=*/GlobalValue::InitialExecTLSModel);
     } else {
       // The variable exists, check its type and attributes
       if (UnsafeStackPtr->getValueType() != Int8Ty->getPointerTo()) {
