@@ -1,4 +1,4 @@
-//===-- SafeStack.cpp - Safe Stack Insertion --------------------*- C++ -*-===//
+//===-- SafeStack.cpp - Safe Stack Insertion ------------------------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
