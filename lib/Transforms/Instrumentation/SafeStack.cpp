@@ -14,7 +14,7 @@
 //===----------------------------------------------------------------------===//
 
 #define DEBUG_TYPE "safestack"
-#include "llvm/CodeGen/Passes.h"
+#include "llvm/Transforms/Instrumentation.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/Analysis/AliasAnalysis.h"
@@ -568,6 +568,6 @@ INITIALIZE_PASS_END(SafeStack, "safe-stack",
                     "Safe Stack instrumentation pass", false, false)
 
 
-Pass *llvm::createSafeStackPass() {
+ModulePass *llvm::createSafeStackPass() {
   return new SafeStack();
 }
