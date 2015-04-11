@@ -107,6 +107,7 @@ bool IsSafeStackAlloca(const AllocaInst *AI, const DataLayout *) {
       case Instruction::BitCast:
       case Instruction::PHI:
       case Instruction::Select:
+      case Instruction::PtrToInt:
         // The object can be safe or not, depending on how the result of the
         // BitCast/PHI/Select/GEP/etc. is used.
         if (Visited.insert(I).second)
