@@ -207,11 +207,11 @@ entry:
   ret void
 }
 
-; test9b:  Addr-of in select instruction
+; test8:  Addr-of in select instruction
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test9b(
-define void @test9b() nounwind uwtable safestack {
+; CHECK-LABEL: @test8(
+define void @test8() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -224,10 +224,10 @@ entry:
   ret void
 }
 
-; test10b: Addr-of in phi instruction
+; test9: Addr-of in phi instruction
 ; Requires protector.
-; CHECK-LABEL: @test10b(
-define void @test10b() nounwind uwtable safestack {
+; CHECK-LABEL: @test9(
+define void @test9() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -255,11 +255,11 @@ if.end4:                                          ; preds = %if.else, %if.then3,
   ret void
 }
 
-; test11b: Addr-of struct element. (GEP followed by store).
+; test10: Addr-of struct element. (GEP followed by store).
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test11b(
-define void @test11b() nounwind uwtable safestack {
+; CHECK-LABEL: @test10(
+define void @test10() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -272,11 +272,11 @@ entry:
   ret void
 }
 
-; test12b: Addr-of struct element, GEP followed by ptrtoint.
+; test11: Addr-of struct element, GEP followed by ptrtoint.
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test12b(
-define void @test12b() nounwind uwtable safestack {
+; CHECK-LABEL: @test11(
+define void @test11() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -288,11 +288,11 @@ entry:
   ret void
 }
 
-; test13b: Addr-of struct element, GEP followed by callinst.
+; test12: Addr-of struct element, GEP followed by callinst.
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test13b(
-define void @test13b() nounwind uwtable safestack {
+; CHECK-LABEL: @test12(
+define void @test12() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -302,11 +302,11 @@ entry:
   ret void
 }
 
-; test14b: Addr-of a local, optimized into a GEP (e.g., &a - 12)
+; test13: Addr-of a local, optimized into a GEP (e.g., &a - 12)
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test14b(
-define void @test14b() nounwind uwtable safestack {
+; CHECK-LABEL: @test13(
+define void @test13() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -316,12 +316,12 @@ entry:
   ret void
 }
 
-; test15b: Addr-of a local cast to a ptr of a different type
+; test14: Addr-of a local cast to a ptr of a different type
 ;           (e.g., int a; ... ; float *b = &a;)
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test15b(
-define void @test15b() nounwind uwtable safestack {
+; CHECK-LABEL: @test14(
+define void @test14() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -335,12 +335,12 @@ entry:
   ret void
 }
 
-; test16b: Addr-of a local cast to a ptr of a different type (optimized)
+; test15: Addr-of a local cast to a ptr of a different type (optimized)
 ;           (e.g., int a; ... ; float *b = &a;)
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test16b(
-define void @test16b() nounwind uwtable safestack {
+; CHECK-LABEL: @test15(
+define void @test15() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -351,11 +351,11 @@ entry:
   ret void
 }
 
-; test17b: Addr-of a vector nested in a struct
+; test16: Addr-of a vector nested in a struct
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test17b(
-define void @test17b() nounwind uwtable safestack {
+; CHECK-LABEL: @test16(
+define void @test16() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -366,11 +366,11 @@ entry:
   ret void
 }
 
-; test18b: Addr-of a variable passed into an invoke instruction.
+; test17: Addr-of a variable passed into an invoke instruction.
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test18b(
-define i32 @test18b() uwtable safestack {
+; CHECK-LABEL: @test17(
+define i32 @test17() uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -390,12 +390,12 @@ lpad:
   ret i32 0
 }
 
-; test19b: Addr-of a struct element passed into an invoke instruction.
+; test18: Addr-of a struct element passed into an invoke instruction.
 ;           (GEP followed by an invoke)
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test19b(
-define i32 @test19b() uwtable safestack {
+; CHECK-LABEL: @test18(
+define i32 @test18() uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -417,11 +417,11 @@ lpad:
   ret i32 0
 }
 
-; test20b: Addr-of a pointer
+; test19: Addr-of a pointer
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test20b(
-define void @test20b() nounwind uwtable safestack {
+; CHECK-LABEL: @test19(
+define void @test19() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -435,11 +435,11 @@ entry:
   ret void
 }
 
-; test21b: Addr-of a casted pointer
+; test20: Addr-of a casted pointer
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test21b(
-define void @test21b() nounwind uwtable safestack {
+; CHECK-LABEL: @test20(
+define void @test20() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -454,11 +454,11 @@ entry:
   ret void
 }
 
-; test22b: [2 x i8] in a class
+; test21: [2 x i8] in a class
 ;          safestack attribute
 ; Requires no protector.
-; CHECK-LABEL: @test22b(
-define signext i8 @test22b() nounwind uwtable safestack {
+; CHECK-LABEL: @test21(
+define signext i8 @test21() nounwind uwtable safestack {
 entry:
   ; LINUX-NOT: __safestack_unsafe_stack_ptr
   ; DARWIN-X64-NOT: addrspace
@@ -469,11 +469,11 @@ entry:
   ret i8 %0
 }
 
-; test23b: [2 x i8] nested in several layers of structs and unions
+; test22: [2 x i8] nested in several layers of structs and unions
 ;          safestack attribute
 ; Requires no protector.
-; CHECK-LABEL: @test23b(
-define signext i8 @test23b() nounwind uwtable safestack {
+; CHECK-LABEL: @test22(
+define signext i8 @test22() nounwind uwtable safestack {
 entry:
   ; LINUX-NOT: __safestack_unsafe_stack_ptr
   ; DARWIN-X64-NOT: addrspace
@@ -488,11 +488,11 @@ entry:
   ret i8 %0
 }
 
-; test24b: Variable sized alloca
+; test23: Variable sized alloca
 ;          safestack attribute
 ; Requires protector.
-; CHECK-LABEL: @test24b(
-define void @test24b(i32 %n) nounwind uwtable safestack {
+; CHECK-LABEL: @test23(
+define void @test23(i32 %n) nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -507,11 +507,11 @@ entry:
   ret void
 }
 
-; test25b: array of [4 x i32]
+; test24: array of [4 x i32]
 ;          safestack attribute
 ; Requires no protector, constant index.
-; CHECK-LABEL: @test25b(
-define i32 @test25b() nounwind uwtable safestack {
+; CHECK-LABEL: @test24(
+define i32 @test24() nounwind uwtable safestack {
 entry:
   ; LINUX-NOT: __safestack_unsafe_stack_ptr
   ; DARWIN-X64-NOT: addrspace
@@ -526,8 +526,8 @@ entry:
 ;         a safe stack protector.
 ;         safestack attribute
 ; Requires no protector.
-; CHECK-LABEL: @test26(
-define void @test26() nounwind uwtable safestack {
+; CHECK-LABEL: @test25(
+define void @test25() nounwind uwtable safestack {
 entry:
   ; LINUX-NOT: __safestack_unsafe_stack_ptr
   ; DARWIN-X64-NOT: addrspace
@@ -545,8 +545,8 @@ entry:
 ;         Verify that the address-of analysis does not get stuck in infinite
 ;         recursion when chasing the alloca through the PHI nodes.
 ; Requires protector.
-; CHECK-LABEL: @test27(
-define i32 @test27(i32 %arg) nounwind uwtable safestack {
+; CHECK-LABEL: @test26(
+define i32 @test26(i32 %arg) nounwind uwtable safestack {
 bb:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
@@ -589,8 +589,8 @@ bb21:                                             ; preds = %bb6, %bb
 
 ; test28: setjmp/longjmp test.
 ; Requires protector.
-; CHECK-LABEL: @test28(
-define i32 @test28() nounwind uwtable safestack {
+; CHECK-LABEL: @test27(
+define i32 @test27() nounwind uwtable safestack {
 entry:
   ; LINUX: __safestack_unsafe_stack_ptr
   ; DARWIN-X64: addrspace
