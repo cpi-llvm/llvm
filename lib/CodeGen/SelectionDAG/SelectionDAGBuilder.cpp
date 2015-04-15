@@ -4610,31 +4610,6 @@ SelectionDAGBuilder::visitIntrinsicCall(const CallInst &I, unsigned Intrinsic) {
     // By default, turn this into a target intrinsic node.
     visitTargetIntrinsic(I, Intrinsic);
     return nullptr;
-  case Intrinsic::safestack_get_usp: {
-    Value* PtrVal = TLI.getUnsafeStackPtr(I.getContext());
-    SDValue Ptr = getValue(PtrVal);
-    SDValue Root = DAG.getRoot();
-    SDValue V = DAG.getLoad(TLI.getPointerTy(), sdl, Root, Ptr,
-                            MachinePointerInfo(PtrVal),
-                            false /* volatile */,
-                            false /* nontemporal */,
-                            false /* isinvariant */,
-                            1 /* align */);
-    setValue(&I, V);
-    return nullptr;
-  }
-  case Intrinsic::safestack_set_usp: {
-    Value* PtrVal = TLI.getUnsafeStackPtr(I.getContext());
-    SDValue Ptr = getValue(PtrVal);
-    SDValue Root = DAG.getRoot();
-    SDValue Arg0 = getValue(I.getArgOperand(0));
-    SDValue V = DAG.getStore(Root, sdl, Arg0, Ptr, MachinePointerInfo(PtrVal),
-                             false /* volatile */,
-                             false /* nontemporal */,
-                             1 /* alignment */);
-    DAG.setRoot(V);
-    return nullptr;
-  }
   case Intrinsic::vastart:  visitVAStart(I); return nullptr;
   case Intrinsic::vaend:    visitVAEnd(I); return nullptr;
   case Intrinsic::vacopy:   visitVACopy(I); return nullptr;
