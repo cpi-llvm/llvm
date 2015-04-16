@@ -182,7 +182,7 @@ entry:
   ret void
 }
 
-; PtrToInt Cast
+; PtrToInt/IntToPtr Cast
 ; Requires no protector.
 
 ; CHECK-LABEL: @test6(
@@ -192,6 +192,7 @@ entry:
   ; DARWIN-X64-NOT: addrspace
   %a = alloca i32, align 4
   %0 = ptrtoint i32* %a to i64
+  %1 = inttoptr i64 %0 to i32*
   ret void
 }
 
