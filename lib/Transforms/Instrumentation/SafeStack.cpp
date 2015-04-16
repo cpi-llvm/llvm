@@ -180,7 +180,7 @@ class SafeStack : public ModulePass {
 
   bool runOnFunction(Function &F);
 
-  Constant *getUnsafeStackPtr(Function &F);
+  Constant *getOrCreateUnsafeStackPtr(Function &F);
 
 public:
   static char ID; // Pass identification, replacement for typeid.
@@ -253,7 +253,7 @@ public:
   }
 }; // class SafeStack
 
-Constant *SafeStack::getUnsafeStackPtr(Function &F) {
+Constant *SafeStack::getOrCreateUnsafeStackPtr(Function &F) {
   const TargetTransformInfo *TTI =
       &getAnalysis<TargetTransformInfoWrapperPass>().getTTI(F);
 
@@ -303,7 +303,7 @@ bool SafeStack::runOnFunction(Function &F) {
   ++NumFunctions;
 
   unsigned StackAlignment = 16;
-  Constant *UnsafeStackPtr = getUnsafeStackPtr(F);
+  Constant *UnsafeStackPtr = getOrCreateUnsafeStackPtr(F);
 
   SmallVector<AllocaInst*, 16> StaticAllocas;
   SmallVector<AllocaInst*, 4> DynamicAllocas;
