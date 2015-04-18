@@ -170,16 +170,7 @@ class SafeStack : public ModulePass {
   Type *Int32Ty;
   Type *Int8Ty;
 
-  bool haveFunctionsWithSafeStack(Module &M) {
-    for (Function &F : M) {
-      if (F.hasFnAttribute(Attribute::SafeStack))
-        return true;
-    }
-    return false;
-  }
-
   bool runOnFunction(Function &F);
-
   Constant *getOrCreateUnsafeStackPtr(Function &F);
 
 public:
@@ -197,14 +188,7 @@ public:
     DEBUG(dbgs() << "[SafeStack] Module: "
                  << M.getModuleIdentifier() << "\n");
 
-    // Does the module have any functions that require safe stack?
-    if (!haveFunctionsWithSafeStack(M)) {
-      DEBUG(dbgs() << "[SafeStack] no functions to instrument\n");
-      return false; // Nothing to do
-    }
-
     AA = &getAnalysis<AliasAnalysis>();
-
     DL = &M.getDataLayout();
 
     StackPtrTy = Type::getInt8PtrTy(M.getContext());
