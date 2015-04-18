@@ -59,7 +59,7 @@ namespace {
 /// Check whether a given alloca instructino (AI) should be put on the safe
 /// stack or not. The function analyzes all uses of AI and checks whether it is
 /// only accessed in a memory safe way (as decided statically).
-bool IsSafeStackAlloca(const AllocaInst *AI, const DataLayout *) {
+bool IsSafeStackAlloca(const AllocaInst *AI) {
   // Go through all uses of this alloca and check whether all accesses to the
   // allocated object are statically known to be memory safe and, hence, the
   // object can be placed on the safe stack.
@@ -324,7 +324,7 @@ bool SafeStack::runOnFunction(Function &F) {
     if (AllocaInst *AI = dyn_cast<AllocaInst>(I)) {
       ++NumAllocas;
 
-      if (IsSafeStackAlloca(AI, DL))
+      if (IsSafeStackAlloca(AI))
         continue;
 
       if (AI->isStaticAlloca()) {
