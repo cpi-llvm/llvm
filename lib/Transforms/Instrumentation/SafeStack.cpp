@@ -162,14 +162,13 @@ bool IsSafeStackAlloca(const AllocaInst *AI) {
 /// local variables that are accessed in unsafe ways.
 class SafeStack : public ModulePass {
   const DataLayout *DL;
+
   AliasAnalysis *AA;
 
   Type *StackPtrTy;
   Type *IntPtrTy;
   Type *Int32Ty;
   Type *Int8Ty;
-
-  unsigned NoSafeStackMDKind;
 
   bool runOnFunction(Function &F);
   Constant *getOrCreateUnsafeStackPtr(Function &F);
@@ -196,7 +195,6 @@ public:
     IntPtrTy = DL->getIntPtrType(M.getContext());
     Int32Ty = Type::getInt32Ty(M.getContext());
     Int8Ty = Type::getInt8Ty(M.getContext());
-    NoSafeStackMDKind = M.getMDKindID("no_safe_stack");
 
     // Add safe stack instrumentation to all functions that need it
     for (Function &F : M) {
@@ -310,7 +308,7 @@ bool SafeStack::runOnFunction(Function &F) {
     if (AllocaInst *AI = dyn_cast<AllocaInst>(I)) {
       ++NumAllocas;
 
-      if (AI->getMetadata(NoSafeStackMDKind) || IsSafeStackAlloca(AI))
+      if (IsSafeStackAlloca(AI))
         continue;
 
       if (AI->isStaticAlloca()) {
